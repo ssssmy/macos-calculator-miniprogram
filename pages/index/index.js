@@ -1,316 +1,240 @@
-// pages/index/index.js
+const MAX_INPUT_LENGTH = 12
+
 Page({
-  /**
-   * 页面的初始数据
-   */
   data: {
-    // 显示数据
-    expression: '123 + 456',
-    result: '579.00',
-    currentTime: '15:46',
-    batteryLevel: 84,
-    batteryColor: '#34C759',
-    
-    // 计算器状态
-    activeOperator: '÷',
-    currentInput: '0',
-    previousInput: '',
-    operator: '',
-    shouldResetInput: false,
-    
-    // 电池动画
-    batteryInterval: null,
-    timeInterval: null
+    expression: '',
+    result: '0',
+    activeOperator: '',
+    resultFontClass: ''
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
-  onLoad(options) {
-    this.updateTime();
-    this.startBatteryAnimation();
-    this.startTimeUpdate();
+  _currentInput: '0',
+  _previousInput: '',
+  _operator: '',
+  _shouldResetInput: false,
+
+  _getResultFontClass(text) {
+    const len = text.length
+    if (len > 12) return 'result-xs'
+    if (len > 9) return 'result-sm'
+    if (len > 7) return 'result-md'
+    return ''
   },
 
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload() {
-    this.stopBatteryAnimation();
-    this.stopTimeUpdate();
-  },
-
-  /**
-   * 更新时间
-   */
-  updateTime() {
-    const now = new Date();
-    const hours = now.getHours().toString().padStart(2, '0');
-    const minutes = now.getMinutes().toString().padStart(2, '0');
-    this.setData({
-      currentTime: `${hours}:${minutes}`
-    });
-  },
-
-  /**
-   * 开始时间更新
-   */
-  startTimeUpdate() {
-    this.data.timeInterval = setInterval(() => {
-      this.updateTime();
-    }, 60000); // 每分钟更新一次
-  },
-
-  /**
-   * 停止时间更新
-   */
-  stopTimeUpdate() {
-    if (this.data.timeInterval) {
-      clearInterval(this.data.timeInterval);
-    }
-  },
-
-  /**
-   * 开始电池动画
-   */
-  startBatteryAnimation() {
-    this.data.batteryInterval = setInterval(() => {
-      let level = this.data.batteryLevel;
-      level = (level + 1) % 101;
-      
-      // 根据电量改变颜色
-      let color = '#34C759'; // 绿色
-      if (level > 70) {
-        color = '#34C759'; // 绿色
-      } else if (level > 30) {
-        color = '#FF9500'; // 橙色
-      } else {
-        color = '#FF3B30'; // 红色
+  _formatResult(value) {
+    const str = value.toString()
+    if (str.length > MAX_INPUT_LENGTH) {
+      const num = parseFloat(value)
+      if (Math.abs(num) >= 1e12 || (Math.abs(num) < 1e-10 && num !== 0)) {
+        return num.toExponential(6)
       }
-      
-      this.setData({
-        batteryLevel: level,
-        batteryColor: color
-      });
-    }, 3000);
-  },
-
-  /**
-   * 停止电池动画
-   */
-  stopBatteryAnimation() {
-    if (this.data.batteryInterval) {
-      clearInterval(this.data.batteryInterval);
+      return str.slice(0, MAX_INPUT_LENGTH)
     }
+    return str
   },
 
-  /**
-   * 处理按钮点击
-   */
   handleButtonTap(e) {
-    const value = e.currentTarget.dataset.value;
-    
-    // 添加点击反馈
-    const button = e.currentTarget;
-    button.setData({
-      transform: 'scale(0.95)'
-    });
-    
-    setTimeout(() => {
-      button.setData({
-        transform: ''
-      });
-    }, 150);
-    
-    // 根据按钮类型处理
-    if (this.isNumber(value) || value === '.') {
-      this.handleNumberInput(value);
-    } else if (this.isOperator(value)) {
-      this.handleOperatorInput(value);
+    const value = e.currentTarget.dataset.value
+
+    if (this._isNumber(value) || value === '.') {
+      this._handleNumberInput(value)
+    } else if (this._isOperator(value)) {
+      this._handleOperatorInput(value)
     } else if (value === '=') {
-      this.handleEquals();
+      this._handleEquals()
     } else if (value === 'C') {
-      this.handleClear();
+      this._handleClear()
     } else if (value === '±') {
-      this.handleToggleSign();
+      this._handleToggleSign()
     } else if (value === '%') {
-      this.handlePercentage();
+      this._handlePercentage()
     }
   },
 
-  /**
-   * 判断是否为数字
-   */
-  isNumber(value) {
-    return /^[0-9]$/.test(value);
+  _isNumber(value) {
+    return /^[0-9]$/.test(value)
   },
 
-  /**
-   * 判断是否为操作符
-   */
-  isOperator(value) {
-    return ['+', '-', '×', '÷'].includes(value);
+  _isOperator(value) {
+    return ['+', '-', '×', '÷'].includes(value)
   },
 
-  /**
-   * 处理数字输入
-   */
-  handleNumberInput(number) {
-    let currentInput = this.data.currentInput;
-    const shouldResetInput = this.data.shouldResetInput;
-    
-    if (shouldResetInput) {
-      currentInput = '';
-      this.setData({ shouldResetInput: false });
+  _handleNumberInput(number) {
+    let input = this._currentInput
+
+    if (this._shouldResetInput) {
+      input = '0'
+      this._shouldResetInput = false
     }
-    
+
     if (number === '.') {
-      if (!currentInput.includes('.')) {
-        currentInput = currentInput === '' ? '0.' : currentInput + '.';
+      if (!input.includes('.')) {
+        input = input === '' ? '0.' : input + '.'
       }
     } else {
-      currentInput = currentInput === '0' ? number : currentInput + number;
+      if (input.replace(/[^0-9]/g, '').length >= MAX_INPUT_LENGTH) return
+      input = input === '0' ? number : input + number
     }
-    
+
+    this._currentInput = input
+    const display = this._formatResult(input)
     this.setData({
-      currentInput: currentInput,
-      result: currentInput
-    });
+      result: display,
+      resultFontClass: this._getResultFontClass(display)
+    })
   },
 
-  /**
-   * 处理操作符输入
-   */
-  handleOperatorInput(operator) {
-    const currentInput = this.data.currentInput;
-    const previousInput = this.data.previousInput;
-    const currentOperator = this.data.operator;
-    
-    // 设置当前激活的操作符
-    this.setData({
-      activeOperator: operator
-    });
-    
-    // 如果有之前的操作符和输入，先计算
-    if (previousInput !== '' && currentOperator !== '' && !this.data.shouldResetInput) {
-      const result = this.calculate(previousInput, currentInput, currentOperator);
-      this.setData({
-        previousInput: result.toString(),
-        currentInput: '0',
-        result: result.toString(),
-        expression: `${previousInput} ${currentOperator} ${currentInput}`
-      });
+  _handleOperatorInput(operator) {
+    const currentInput = this._currentInput
+    const previousInput = this._previousInput
+    const currentOperator = this._operator
+
+    let updateData = { activeOperator: operator }
+
+    if (previousInput !== '' && currentOperator !== '' && !this._shouldResetInput) {
+      const calcResult = this._calculate(previousInput, currentInput, currentOperator)
+      if (calcResult === null) {
+        this._currentInput = '0'
+        this._previousInput = ''
+        this._operator = ''
+        this._shouldResetInput = false
+        const display = '错误'
+        this.setData({
+          expression: `${previousInput} ${currentOperator} ${currentInput}`,
+          result: display,
+          activeOperator: '',
+          resultFontClass: this._getResultFontClass(display)
+        })
+        return
+      }
+      const resultStr = this._formatResult(calcResult)
+      this._previousInput = calcResult.toString()
+      this._currentInput = '0'
+      updateData.result = resultStr
+      updateData.expression = `${resultStr} ${operator}`
+      updateData.resultFontClass = this._getResultFontClass(resultStr)
     } else {
+      const display = this._formatResult(currentInput)
+      this._previousInput = currentInput
+      this._currentInput = '0'
+      updateData.expression = `${display} ${operator}`
+    }
+
+    this._operator = operator
+    this._shouldResetInput = true
+    this.setData(updateData)
+  },
+
+  _handleEquals() {
+    const previousInput = this._previousInput
+    const currentInput = this._currentInput
+    const operator = this._operator
+
+    if (previousInput === '' || operator === '') return
+
+    const calcResult = this._calculate(previousInput, currentInput, operator)
+    const prevDisplay = this._formatResult(previousInput)
+    const currDisplay = this._formatResult(currentInput)
+
+    if (calcResult === null) {
+      this._currentInput = '0'
+      this._previousInput = ''
+      this._operator = ''
+      this._shouldResetInput = false
+      const display = '错误'
       this.setData({
-        previousInput: currentInput,
-        currentInput: '0'
-      });
+        expression: `${prevDisplay} ${operator} ${currDisplay}`,
+        result: display,
+        activeOperator: '',
+        resultFontClass: this._getResultFontClass(display)
+      })
+      return
     }
-    
-    this.setData({
-      operator: operator,
-      shouldResetInput: true
-    });
-  },
 
-  /**
-   * 处理等号
-   */
-  handleEquals() {
-    const previousInput = this.data.previousInput;
-    const currentInput = this.data.currentInput;
-    const operator = this.data.operator;
-    
-    if (previousInput === '' || operator === '') {
-      return;
-    }
-    
-    const result = this.calculate(previousInput, currentInput, operator);
-    
+    const resultStr = this._formatResult(calcResult)
+    this._previousInput = ''
+    this._currentInput = calcResult.toString()
+    this._operator = ''
+    this._shouldResetInput = true
+
     this.setData({
-      expression: `${previousInput} ${operator} ${currentInput}`,
-      result: result.toString(),
-      previousInput: '',
-      currentInput: result.toString(),
-      operator: '',
+      expression: `${prevDisplay} ${operator} ${currDisplay}`,
+      result: resultStr,
       activeOperator: '',
-      shouldResetInput: true
-    });
+      resultFontClass: this._getResultFontClass(resultStr)
+    })
   },
 
-  /**
-   * 处理清除
-   */
-  handleClear() {
+  _handleClear() {
+    this._currentInput = '0'
+    this._previousInput = ''
+    this._operator = ''
+    this._shouldResetInput = false
+
     this.setData({
       expression: '',
       result: '0',
-      previousInput: '',
-      currentInput: '0',
-      operator: '',
       activeOperator: '',
-      shouldResetInput: false
-    });
+      resultFontClass: ''
+    })
   },
 
-  /**
-   * 处理正负号切换
-   */
-  handleToggleSign() {
-    const currentInput = this.data.currentInput;
-    if (currentInput === '0') return;
-    
-    const newValue = currentInput.startsWith('-') 
-      ? currentInput.substring(1) 
-      : '-' + currentInput;
-    
+  _handleToggleSign() {
+    if (this._currentInput === '0') return
+
+    const newValue = this._currentInput.startsWith('-')
+      ? this._currentInput.substring(1)
+      : '-' + this._currentInput
+
+    this._currentInput = newValue
+    const display = this._formatResult(newValue)
     this.setData({
-      currentInput: newValue,
-      result: newValue
-    });
+      result: display,
+      resultFontClass: this._getResultFontClass(display)
+    })
   },
 
-  /**
-   * 处理百分比
-   */
-  handlePercentage() {
-    const currentInput = this.data.currentInput;
-    const value = parseFloat(currentInput) / 100;
-    
+  _handlePercentage() {
+    const value = parseFloat(this._currentInput) / 100
+    const fixed = parseFloat(value.toFixed(10))
+    this._currentInput = fixed.toString()
+    const display = this._formatResult(fixed)
     this.setData({
-      currentInput: value.toString(),
-      result: value.toString()
-    });
+      result: display,
+      resultFontClass: this._getResultFontClass(display)
+    })
   },
 
-  /**
-   * 计算函数
-   */
-  calculate(num1, num2, operator) {
-    const n1 = parseFloat(num1);
-    const n2 = parseFloat(num2);
-    
+  _calculate(num1, num2, operator) {
+    const n1 = parseFloat(num1)
+    const n2 = parseFloat(num2)
+
+    let result
     switch (operator) {
       case '+':
-        return n1 + n2;
+        result = n1 + n2
+        break
       case '-':
-        return n1 - n2;
+        result = n1 - n2
+        break
       case '×':
-        return n1 * n2;
+        result = n1 * n2
+        break
       case '÷':
-        return n2 === 0 ? 0 : n1 / n2;
+        if (n2 === 0) return null
+        result = n1 / n2
+        break
       default:
-        return n2;
+        return n2
     }
+
+    return parseFloat(result.toFixed(10))
   },
 
-  /**
-   * 用户点击右上角分享
-   */
   onShareAppMessage() {
     return {
       title: 'macOS风格计算器',
       path: '/pages/index/index'
-    };
+    }
   }
-});
+})

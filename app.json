@@ -3,6 +3,7 @@
     "pages/index/index"
   ],
   "window": {
+    "navigationStyle": "custom",
     "navigationBarTitleText": "macOS 计算器",
     "navigationBarBackgroundColor": "#667eea",
     "navigationBarTextStyle": "white",

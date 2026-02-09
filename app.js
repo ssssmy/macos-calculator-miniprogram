@@ -1,0 +1,10 @@
+App({
+  onLaunch() {
+  },
+
+  onShow() {
+  },
+
+  onHide() {
+  }
+})

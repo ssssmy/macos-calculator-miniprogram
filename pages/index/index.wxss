@@ -1,89 +1,65 @@
-/* 计算器容器 */
-.calculator {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(40rpx);
-  -webkit-backdrop-filter: blur(40rpx);
-  border: 2rpx solid rgba(255, 255, 255, 0.2);
-  border-radius: 64rpx;
-  box-shadow: 
-    0 40rpx 120rpx rgba(0, 0, 0, 0.3),
-    inset 0 2rpx 0 rgba(255, 255, 255, 0.1),
-    0 0 0 2rpx rgba(255, 255, 255, 0.05);
-  overflow: hidden;
-  padding: 60rpx;
-  position: relative;
-}
-
-/* 玻璃态深度效果 */
-.calculator::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.05) 0%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  pointer-events: none;
-  border-radius: 64rpx;
-  z-index: -1;
-}
-
 /* 显示屏区域 */
 .display {
   background: rgba(0, 0, 0, 0.3);
-  border-radius: 40rpx;
-  padding: 60rpx 50rpx;
-  margin-bottom: 60rpx;
+  border-radius: 32rpx;
+  padding: 30rpx 36rpx;
+  margin-bottom: 24rpx;
   text-align: right;
   border: 2rpx solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20rpx);
 }
 
 .display-expression {
   color: rgba(255, 255, 255, 0.7);
-  font-size: 40rpx;
-  height: 60rpx;
-  margin-bottom: 20rpx;
+  font-size: 32rpx;
+  height: 44rpx;
+  margin-bottom: 12rpx;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .display-result {
   color: #FFFFFF;
-  font-size: 120rpx;
+  font-size: 88rpx;
   font-weight: 300;
-  line-height: 1;
+  line-height: 1.1;
   letter-spacing: -2rpx;
+  word-break: break-all;
+}
+
+.display-result.result-md {
+  font-size: 72rpx;
+}
+
+.display-result.result-sm {
+  font-size: 56rpx;
+}
+
+.display-result.result-xs {
+  font-size: 44rpx;
 }
 
 /* 按钮网格 */
 .buttons-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 30rpx;
+  gap: 16rpx;
+  padding-bottom: 20rpx;
 }
 
 /* 按钮基础样式 */
 .btn {
-  height: 160rpx;
-  border-radius: 40rpx;
-  font-size: 56rpx;
+  height: 120rpx;
+  border-radius: 28rpx;
+  font-size: 48rpx;
   font-weight: 400;
-  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  user-select: none;
-  position: relative;
-  overflow: hidden;
 }
 
 .btn:active {
-  transform: scale(0.95);
+  opacity: 0.7;
 }
 
 /* 数字按钮 */
@@ -91,15 +67,6 @@
   background: rgba(255, 255, 255, 0.08);
   color: #FFFFFF;
   border: 2rpx solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20rpx);
-}
-
-.btn-number:hover {
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.btn-number:active {
-  background: rgba(255, 255, 255, 0.15);
 }
 
 /* 功能按钮 (C, ±, %) */
@@ -107,11 +74,6 @@
   background: rgba(255, 255, 255, 0.2);
   color: #FFFFFF;
   border: 2rpx solid rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(20rpx);
-}
-
-.btn-function:hover {
-  background: rgba(255, 255, 255, 0.25);
 }
 
 /* 操作符按钮 (÷, ×, -, +) */
@@ -121,14 +83,9 @@
   border: 2rpx solid rgba(255, 149, 0, 0.3);
 }
 
-.btn-operator:hover {
-  background: #ffa733;
-}
-
 .btn-operator.active {
   background: #FFFFFF;
   color: #FF9500;
-  box-shadow: 0 0 40rpx rgba(255, 149, 0, 0.4);
 }
 
 /* 等号按钮 */
@@ -138,95 +95,7 @@
   border: 2rpx solid rgba(0, 122, 255, 0.3);
 }
 
-.btn-equals:hover {
-  background: #3395ff;
-}
-
 /* 零按钮 - 跨两列 */
 .btn-zero {
   grid-column: span 2;
-}
-
-/* 按钮按下效果 */
-.btn::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.1);
-  opacity: 0;
-  transition: opacity 0.2s;
-  border-radius: 40rpx;
-}
-
-.btn:active::after {
-  opacity: 1;
-}
-
-/* 设计说明 */
-.design-note {
-  text-align: center;
-  color: white;
-  margin-top: 60rpx;
-  opacity: 0.8;
-  font-size: 28rpx;
-}
-
-/* 标题文本样式 */
-.title-text {
-  font-size: 64rpx;
-  font-weight: 600;
-  margin-bottom: 20rpx;
-  display: block;
-}
-
-.subtitle {
-  font-size: 32rpx;
-  opacity: 0.9;
-  display: block;
-}
-
-/* 响应式设计 */
-@media (max-width: 750rpx) {
-  .calculator {
-    padding: 40rpx;
-    border-radius: 56rpx;
-  }
-  
-  .btn {
-    height: 140rpx;
-    font-size: 48rpx;
-    border-radius: 36rpx;
-  }
-  
-  .display-result {
-    font-size: 100rpx;
-  }
-  
-  .buttons-grid {
-    gap: 24rpx;
-  }
-}
-
-@media (max-width: 600rpx) {
-  .calculator {
-    padding: 30rpx;
-    border-radius: 48rpx;
-  }
-  
-  .btn {
-    height: 120rpx;
-    font-size: 44rpx;
-    border-radius: 32rpx;
-  }
-  
-  .display-result {
-    font-size: 84rpx;
-  }
-  
-  .buttons-grid {
-    gap: 20rpx;
-  }
 }
