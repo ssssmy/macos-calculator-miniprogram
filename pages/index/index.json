@@ -1,0 +1,9 @@
+{
+  "usingComponents": {},
+  "navigationBarTitleText": "macOS 计算器",
+  "navigationBarBackgroundColor": "#667eea",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#764ba2",
+  "backgroundTextStyle": "light",
+  "enablePullDownRefresh": false
+}

@@ -1,0 +1,62 @@
+<!-- 计算器页面 -->
+<view class="container">
+  <view class="title">
+    <text class="title-text">macOS 计算器</text>
+    <text class="subtitle">玻璃态效果 + 原生风格</text>
+  </view>
+  
+  <view class="calculator">
+    <!-- 状态栏 -->
+    <view class="status-bar">
+      <text class="time">{{currentTime}}</text>
+      <view class="battery">
+        <view class="battery-icon">
+          <view class="battery-level" style="width: {{batteryLevel}}%; background: {{batteryColor}};"></view>
+        </view>
+        <text>{{batteryLevel}}%</text>
+      </view>
+    </view>
+
+    <!-- 显示屏 -->
+    <view class="display">
+      <view class="display-expression">{{expression}}</view>
+      <view class="display-result">{{result}}</view>
+    </view>
+
+    <!-- 按钮区域 -->
+    <view class="buttons-grid">
+      <!-- 第一行 -->
+      <button class="btn btn-function" bindtap="handleButtonTap" data-value="C">C</button>
+      <button class="btn btn-function" bindtap="handleButtonTap" data-value="±">±</button>
+      <button class="btn btn-function" bindtap="handleButtonTap" data-value="%">%</button>
+      <button class="btn btn-operator {{activeOperator === '÷' ? 'active' : ''}}" bindtap="handleButtonTap" data-value="÷">÷</button>
+      
+      <!-- 第二行 -->
+      <button class="btn btn-number" bindtap="handleButtonTap" data-value="7">7</button>
+      <button class="btn btn-number" bindtap="handleButtonTap" data-value="8">8</button>
+      <button class="btn btn-number" bindtap="handleButtonTap" data-value="9">9</button>
+      <button class="btn btn-operator {{activeOperator === '×' ? 'active' : ''}}" bindtap="handleButtonTap" data-value="×">×</button>
+      
+      <!-- 第三行 -->
+      <button class="btn btn-number" bindtap="handleButtonTap" data-value="4">4</button>
+      <button class="btn btn-number" bindtap="handleButtonTap" data-value="5">5</button>
+      <button class="btn btn-number" bindtap="handleButtonTap" data-value="6">6</button>
+      <button class="btn btn-operator {{activeOperator === '-' ? 'active' : ''}}" bindtap="handleButtonTap" data-value="-">-</button>
+      
+      <!-- 第四行 -->
+      <button class="btn btn-number" bindtap="handleButtonTap" data-value="1">1</button>
+      <button class="btn btn-number" bindtap="handleButtonTap" data-value="2">2</button>
+      <button class="btn btn-number" bindtap="handleButtonTap" data-value="3">3</button>
+      <button class="btn btn-operator {{activeOperator === '+' ? 'active' : ''}}" bindtap="handleButtonTap" data-value="+">+</button>
+      
+      <!-- 第五行 -->
+      <button class="btn btn-number btn-zero" bindtap="handleButtonTap" data-value="0">0</button>
+      <button class="btn btn-number" bindtap="handleButtonTap" data-value=".">.</button>
+      <button class="btn btn-equals" bindtap="handleButtonTap" data-value="=">=</button>
+    </view>
+  </view>
+
+  <view class="design-note">
+    <text>设计说明：macOS原生风格 + 玻璃态效果</text>
+  </view>
+</view>
